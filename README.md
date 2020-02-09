@@ -1,84 +1,198 @@
-# liri-node-app
+Navigate to the root of your project and run npm init -y — this will initialize a package.json file for your project. The package.json file is required for installing third party npm packages and saving their version numbers. If you fail to initialize a package.json file, it will be troublesome, and at times almost impossible for anyone else to run your code after cloning your project.
 
-OVERVIEW OF APPLICATION
-LIRI is a Command Line Interface (CLI) application developed using Node.js.
 
-LIRI was developed using NPMs, often referred to the "Node Package Manager". The NPMs contained in LIRI include:
+Make a .gitignore file and add the following lines to it. This will tell git not to track these files, and thus they won't be committed to Github.
 
-moment - used to modify the date formats
-Axios - in this application, uses GET http requests to retrieve data
-fs - used to read data from random.txt file
-node-spotify-api - A simple to use API library for the Spotify REST API
-dotenv : allows is to store environment variables in a .env file
-The Axios NPM is used to connect, query, and retrieve data responses using APIs from 3 specific websites: i) Bandsintown.com ii) spotify.com iii) omdbapi.com (The Open Movie Database)
 
-The response data is then displayed using commands from the command line.
+node_modules
+.DS_Store
+.env
 
-Give start-to-finish instructions on how to run the app
-HOW TO USE THE APPLICATION
-To run the application, open a command Terminal Under the menu options select "Terminal" => "New Terminal Window"
+Make a JavaScript file named keys.js.
 
-We are going to run one of four commands, depending upon what type output you are searching.
 
-Your options are:
+Inside keys.js your file will look like this:
 
-A) node liri.js concert-this <name of concert event or artist>
+console.log('this is loaded');
 
-B) node liri.js spotify-this-song <name of song track>
+exports.spotify = {
+  id: process.env.SPOTIFY_ID,
+  secret: process.env.SPOTIFY_SECRET
+};
 
-C) node liri.js movie-this <title of movie>
+Next, create a file named .env, add the following to it, replacing the values with your API keys (no quotes) once you have them:
 
-D) node liri.js do-what-it-says
+# Spotify API keys
 
-OPTION A: Search for concert events
-node liri.js concert-this <name of concert event or artist>
-Example command: node liri.js concert-this Taylor Swift
+SPOTIFY_ID=your-spotify-id
+SPOTIFY_SECRET=your-spotify-secret
 
-https://user-images.githubusercontent.com/24717213/69504999-33f9b280-0ef5-11ea-8f02-77cefc4c62fe.png
 
-The command will query the bandsintown.com website. The response returned back from the "concert-this" CLI will return:
+
+This file will be used by the dotenv package to set what are known as environment variables to the global process.env object in node. These are values that are meant to be specific to the computer that node is running on, and since we are gitignoring this file, they won't be pushed to github — keeping our API key information private.
+
+
+If someone wanted to clone your app from github and run it themselves, they would need to supply their own .env file for it to work.
+
+
+
+
+Make a file called random.txt.
+
+
+Inside of random.txt put the following in with no extra characters or white space:
+
+spotify-this-song,"I Want it That Way"
+
+
+
+
+
+Make a JavaScript file named liri.js.
+
+
+At the top of the liri.js file, add code to read and set any environment variables with the dotenv package:
+
+
+require("dotenv").config();
+
+Add the code required to import the keys.js file and store it in a variable.
+
+  var keys = require("./keys.js");
+
+
+You should then be able to access your keys information like so
+var spotify = new Spotify(keys.spotify);
+
+
+
+
+Make it so liri.js can take in one of the following commands:
+
+
+concert-this
+
+
+spotify-this-song
+
+
+movie-this
+
+
+do-what-it-says
+
+
+
+
+
+What Each Command Should Do
+
+
+node liri.js concert-this <artist/band name here>
+
+
+This will search the Bands in Town Artist Events API ("https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp") for an artist and render the following information about each event to the terminal:
+
 
 Name of the venue
+
+
 Venue location
-Date of the Event (using the format this as "MM/DD/YYYY")
-OPTION B: Search for artist on spotify.com
-node liri.js spotify-this-song <name of song track>
-Example command: node liri.js spotify-this-song Stairway to Heaven
 
-https://user-images.githubusercontent.com/24717213/69505058-b1252780-0ef5-11ea-81ba-3951b283f9ed.png
 
-The command will query the spotify.com website. The response returned back from the "spotify-this-song" CLI will return:
+Date of the Event (use moment to format this as "MM/DD/YYYY")
+
+
+
+
+Important: There is no need to sign up for a Bands in Town api_id key. Use the codingbootcamp as your app_id. For example, the URL used to search for "Celine Dion" would look like the following:
+
+https://rest.bandsintown.com/artists/celine+dion/events?app_id=codingbootcamp
+
+
+
+
+
+node liri.js spotify-this-song '<song name here>'
+
+
+This will show the following information about the song in your terminal/bash window
+
 
 Artist(s)
+
+
 The song's name
+
+
 A preview link of the song from Spotify
+
+
 The album that the song is from
-NOTE: If no artist name is specified, the default response will display the song "The Sign" by the artist "Ace of Base".
-https://user-images.githubusercontent.com/24717213/69505121-25f86180-0ef6-11ea-93b8-99b8fd1974e6.png
 
-OPTION C: Search for movie title using OMDBAPI
-node liri.js movie-this <title of movie>
-Example command: node liri.js movie-this school of rock
 
-(https://user-images.githubusercontent.com/24717213/69504804-e9c40180-0ef3-11ea-876f-53b59707c7ca.png
 
-The response returned back from the "movie-this" CLI will return:
 
-Title of the movie.
-Year the movie came out.
-IMDB Rating of the movie.
-Rotten Tomatoes Rating of the movie.
-Country where the movie was produced.
-Language of the movie.
-Plot of the movie.
-Actors in the movie.
-NOTE: If the user does NOT include a movie name in the command, the CLI will output data for the movie 'Mr. Nobody.'
-https://user-images.githubusercontent.com/24717213/69504909-a0c07d00-0ef4-11ea-8596-102fe5bc0d10.png
+If no song is provided then your program will default to "The Sign" by Ace of Base.
 
-OPTION D: Read text from a text file using fs NPM
+
+You will utilize the node-spotify-api package in order to retrieve song information from the Spotify API.
+
+
+The Spotify API requires you sign up as a developer to generate the necessary credentials. You can follow these steps in order to generate a client id and client secret:
+
+
+Step One: Visit https://developer.spotify.com/my-applications/#!/
+
+
+Step Two: Either login to your existing Spotify account or create a new one (a free account is fine) and log in.
+
+
+Step Three: Once logged in, navigate to https://developer.spotify.com/my-applications/#!/applications/create to register a new application to be used with the Spotify API. You can fill in whatever you'd like for these fields. When finished, click the "complete" button.
+
+
+Step Four: On the next screen, scroll down to where you see your client id and client secret. Copy these values down somewhere, you'll need them to use the Spotify API and the node-spotify-api package.
+
+
+
+
+node liri.js movie-this '<movie name here>'
+
+
+This will output the following information to your terminal/bash window:
+  * Title of the movie.
+  * Year the movie came out.
+  * IMDB Rating of the movie.
+  * Rotten Tomatoes Rating of the movie.
+  * Country where the movie was produced.
+  * Language of the movie.
+  * Plot of the movie.
+  * Actors in the movie.
+
+
+If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
+
+
+If you haven't watched "Mr. Nobody," then you should: http://www.imdb.com/title/tt0485947/
+
+
+It's on Netflix!
+
+
+
+
+You'll use the axios package to retrieve data from the OMDB API. Like all of the in-class activities, the OMDB API requires an API key. You may use trilogy.
+
+
+
+
 node liri.js do-what-it-says
-https://user-images.githubusercontent.com/24717213/69505408-cef38c00-0ef7-11ea-9b03-eae1fd18bf3e.png
 
-There are no extra parameters needed to use the "do-what-it-says" command. LIRI will read the text inside of random.txt and then use it to call one of LIRI's commands.
 
-ie) content of random.txt: spotify-this-song,"I Want it That Way"
+Using the fs Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
+
+
+It should run spotify-this-song for "I Want it That Way," as follows the text in random.txt.
+
+
+Edit the text in random.txt to test out the feature for movie-this and concert-this.
